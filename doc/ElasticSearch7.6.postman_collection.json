@@ -1,0 +1,541 @@
+{
+	"info": {
+		"_postman_id": "63d025ce-5530-4083-8598-8e9360c67fbc",
+		"name": "ElasticSearch7.6",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "获取所有索引库/_cat/indices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{eshost}}/_cat/indices",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"_cat",
+						"indices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "创建一个索引",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "创建一个索引并指定mappings",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"settings\":{\n\t\t\"number_of_shards\":5,\n\t\t\"number_of_replicas\":1\n\t},\n\t\"mappings\": {\n\t\t\t\"properties\": {\n\t\t\t\t\"id\":{\n\t\t\t\t\t\"type\": \"long\",\n\t\t\t\t\t\"store\": true\n\t\t\t\t},\n\t\t\t\t\"title\":{\n\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\"store\": true,\n\t\t\t\t\t\"analyzer\": \"ik_smart\"\n\t\t\t\t},\n\t\t\t\t\"content\":{\n\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\"store\": true,\n\t\t\t\t\t\"analyzer\": \"ik_smart\"\n\t\t\t\t}\n\t\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog1",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "删除索引",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{eshost}}/blog",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询索引信息",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "创建或修改id为1的域,put请求id必须",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"v444eeiie\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/doc/1",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "创建或修改id为1的域,post请求id可选",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"v444eeiie\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/doc",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "修改id为1的域",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"doc\":{\n\t\t\"name\":\"修改1\",\n\t\t\"age\":20\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/doc/1/_update",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc",
+						"1",
+						"_update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "脚本修改id为1的域,年龄+5",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"script\":\"ctx._source.age += 5\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/doc/1/_update",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc",
+						"1",
+						"_update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "删除id为2的域",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{eshost}}/blog/doc/2",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "批量处理(注意每个操作占一行,在最后增加一个空行)(建立索引id1;建立索引id2;修改索引1;删除索引2)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"index\":{\"_id\":\"1\"}}\r\n{\"name\": \"Jo1oe\" }\r\n{\"index\":{\"_id\":\"2\"}}\r\n{\"name\": \"Ja2oe\" }\r\n{\"update\":{\"_id\":\"1\"}}\r\n{\"doc\": { \"name\": \"John Doe becomes Jane Doe\" } }\r\n{\"delete\":{\"_id\":\"2\"}}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/doc/_bulk",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"doc",
+						"_bulk"
+					]
+				},
+				"description": "建立索引id1;  \n建立索引id2;  \n修改索引id1;  \n删除索引id2;"
+			},
+			"response": []
+		},
+		{
+			"name": "查询url",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{eshost}}/blog/_search?q=*&sort=account_number:asc&pretty",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "*"
+						},
+						{
+							"key": "sort",
+							"value": "account_number:asc"
+						},
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				},
+				"description": "建立索引id1;  \n建立索引id2;  \n修改索引id1;  \n删除索引id2;"
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,排序分页并只返回account_number,balance两个字段",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"query\":{\n\t\t\"match_all\": {}\n\t},\n\t\"from\": 1,\n\t\"size\": 1,\n\t\"sort\": {\n\t\t\"account_number\":{\n\t\t\t\"order\":\"desc\"\n\t\t}\n\t},\n\t\"_source\": [\"account_number\",\"balance\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,多种匹配查询",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "匹配account_number为20\n{\n\t\"query\":{\n\t\t\"match\": {\"account_number\":20}\n\t}\n}\n匹配address为mill\n{\n\t\"query\":{\n\t\t\"match\": {\"address\":\"mill\"}\n\t}\n}\n包含术语mill”或lane的所有\n{\n\t\"query\":{\n\t\t\"match\": {\"address\":\"mill lane\"}\n\t}\n}\n包含术语mill”或lane的所有(分词器)\n{\n\t\"query\":{\n\t\t\"match_phrase\": {\"address\":\"mill lane\"}\n\t}\n}\nbool查询,所有的子查询必须为true\n{\n\t\"query\":{\n\t\t\"bool\": {\n\t\t\t\"must\":[\n\t\t\t\t{\"match\":{\"address\":\"mill\"}},\n\t\t\t\t{\"match\":{\"address\":\"lane\"}}\n\t\t\t]\n\t\t}\n\t}\n}\nbool查询,有一条子查询为true\n{\n\t\"query\":{\n\t\t\"bool\": {\n\t\t\t\"should\":[\n\t\t\t\t{\"match\":{\"address\":\"mill\"}},\n\t\t\t\t{\"match\":{\"address\":\"lane\"}}\n\t\t\t]\n\t\t}\n\t}\n}\nbool查询,所有子查询为false\n{\n\t\"query\":{\n\t\t\"bool\": {\n\t\t\t\"must_not\":[\n\t\t\t\t{\"match\":{\"address\":\"mill\"}},\n\t\t\t\t{\"match\":{\"address\":\"lane\"}}\n\t\t\t]\n\t\t}\n\t}\n}\nbool查询,查出40岁,名字不是ve的人\n{\n\t\"query\":{\n\t\t\"bool\": {\n\t\t\t\"must\":[\n\t\t\t\t{\"match\":{\"age\":40}}\n\t\t\t],\n\t\t\t\"must_not\":[\n\t\t\t\t{\"match\":{\"name\":\"ve\"}}\n\t\t\t]\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,过滤器,余额在[20000,30000]",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"query\":{\n\t\t\"bool\": {\n\t\t\t\"must\":[\n\t\t\t\t{\"match_all\":{}}\n\t\t\t],\n\t\t\t\"filter\":{\n\t\t\t\t\"range\": {\n\t\t\t\t\t\"balance\": {\n\t\t\t\t\t\t\"gte\": 20000,\n\t\t\t\t\t\t\"lte\": 30000\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,聚合,第一个聚合按state分组,计算总数,第二个聚合计算按balance计算平均值",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"size\": 0,\n\t\"aggs\":{\n\t\t\"group_by_state\": {\n\t\t\t\"terms\":{\n\t\t\t\t\"field\":\"state.keyword\"\n\t\t\t},\n\t\t\t\"aggs\": {\n\t\t\t\t\"average_balance\": {\n\t\t\t\t\t\"avg\": {\n\t\t\t\t\t\t\"field\": \"balance\"\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,聚合,年龄分组,性别分组,计算平均余额,",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"size\": 0,\n\t\"aggs\":{\n\t\t\"group_by_age\": {\n\t\t\t\"range\":{\n\t\t\t\t\"field\":\"age\",\n\t\t\t\t\"ranges\": [{\"from\":20,\"to\":30},\n\t\t\t\t\t{\"from\":30,\"to\":40},\n\t\t\t\t\t{\"from\":40,\"to\":50}]\n\t\t\t},\n\t\t\t\"aggs\": {\n\t\t\t\t\"group_by_gender\": {\n\t\t\t\t\t\"terms\": {\n\t\t\t\t\t\t\"field\": \"gender.keyword\"\n\t\t\t\t\t},\n\t\t\t\t\"aggs\": {\n\t\t\t\t\t\"average_balance\": {\n\t\t\t\t\t\t\"avg\": {\n\t\t\t\t\t\t\t\"field\": \"balance\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询json,分词器",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"query\":{\n\t\t\"query_string\": {\n\t\t\t\"default_field\":\"address\",\n\t\t\t\"query\": \"Columbus\"\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/blog/_search",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"blog",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "使用指定分词器分词 默认分词器standard,额外分词器ik_smart,ik_max_word",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"analyzer\": \"ik_max_word\",\n\t\"text\": \"超人总动员胡歌\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{eshost}}/_analyze",
+					"host": [
+						"{{eshost}}"
+					],
+					"path": [
+						"_analyze"
+					],
+					"query": [
+						{
+							"key": "analyzer",
+							"value": "standard",
+							"disabled": true
+						},
+						{
+							"key": "text",
+							"value": "244 Columbus Place",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

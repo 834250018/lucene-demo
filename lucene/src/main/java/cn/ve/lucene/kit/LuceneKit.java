@@ -1,9 +1,8 @@
-package cn.ve.lucene;
+package cn.ve.lucene.kit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -22,23 +21,30 @@ import java.io.File;
  * @author ve
  * @date 2020/3/30 19:37
  */
-public class KuceneKit {
 
-
+public enum LuceneKit {
+    ;
     public static final String INDEX_PATH = "d:\\tmp";
     public static final String TEST_PATH = "D:\\searchsource";
+    public static final Analyzer ikAnalyzer = new IKAnalyzer();
 
+    public static void main(String[] args) throws Exception {
+        LuceneKit.analyzerTest("ff", "仙王的日常生活\n" +
+                "杨幂胡歌孙荣\n" +
+                "主演：未知\n" +
+                "相关：\n" +
+                "类型：动漫 国产动漫更新：2和四个队友一起在论剑");
+    }
 
     /**
      * 使用分析器分析文本并打印
      *
-     * @param analyzer
      * @param content
      * @throws Exception
      */
-    public static void analyzerTest(Analyzer analyzer, String content) throws Exception {
+    public static void analyzerTest(String field, String content) throws Exception {
         // 2.使用分析器对象的tokenStream方法获取一个TokenStream对象
-        TokenStream tokenStream = analyzer.tokenStream("", content);
+        TokenStream tokenStream = ikAnalyzer.tokenStream(field, content);
         // 3.向tkenStream对象中设置一个引用,相当于一个指针
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         // 4.重置指针位置,不调用则抛异常
@@ -53,6 +59,7 @@ public class KuceneKit {
 
     /**
      * 可以对要查询的内容先分词,然后基于分词的结果进行查询
+     *
      * @param field
      * @param text
      * @throws Exception
@@ -65,7 +72,7 @@ public class KuceneKit {
         // 3.创建一个IndexSearcher对象
         IndexSearcher indexSearcher = new IndexSearcher(indexReader);
         // 4.创建一个Query对象,TermQuery
-        QueryParser queryParser = new QueryParser(field, new SmartChineseAnalyzer());
+        QueryParser queryParser = new QueryParser(field, ikAnalyzer);
         Query query = queryParser.parse(text);
         // 5.执行查询,得到一个TopDocs对象
         // 参数1:查询对象;参数2:查询结果返回的最大记录数
@@ -116,8 +123,6 @@ public class KuceneKit {
 //            System.out.println(document.get("content"));
             indexReader.close();
         }
-
-
     }
 
     /**
@@ -162,15 +167,15 @@ public class KuceneKit {
      * @throws Exception
      */
     public static void updateDocument(String field, String text) throws Exception {
+        // 1.创建一个Directory,指定索引库位置
+        Directory directory = FSDirectory.open(new File(INDEX_PATH).toPath());
+        // 2.基于Directory对象创建一个IndexWriter对象
+        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(ikAnalyzer));
         Document document = new Document();
         document.add(new TextField("name", "更新之后的文档", Field.Store.YES));
         document.add(new TextField("name1", "更新之后的文档1", Field.Store.YES));
         document.add(new TextField("name2", "更新之后的文档2", Field.Store.YES));
         // 更新操作
-        // 1.创建一个Director对象,指定索引库保存的位置
-        Directory directory = FSDirectory.open(new File(INDEX_PATH).toPath());
-        // 2.基于Directory对象创建一个IndexWriter对象
-        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer()));
         // 删除指定域中包含某个关键词的索引
         indexWriter.updateDocument(new Term(field, text), document);
         indexWriter.close();
@@ -185,7 +190,7 @@ public class KuceneKit {
         // 1.创建一个Director对象,指定索引库保存的位置
         Directory directory = FSDirectory.open(new File(INDEX_PATH).toPath());
         // 2.基于Directory对象创建一个IndexWriter对象
-        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer()));
+        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(ikAnalyzer));
         // 删除指定域中包含某个关键词的索引
         indexWriter.deleteDocuments(new Term(field, text));
         indexWriter.close();
@@ -195,7 +200,7 @@ public class KuceneKit {
         // 1.创建一个Director对象,指定索引库保存的位置
         Directory directory = FSDirectory.open(new File(INDEX_PATH).toPath());
         // 2.基于Directory对象创建一个IndexWriter对象
-        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer()));
+        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(ikAnalyzer));
         indexWriter.deleteAll();
         indexWriter.close();
     }
@@ -210,7 +215,7 @@ public class KuceneKit {
         // 把索引库保存在磁盘
         Directory directory = FSDirectory.open(new File(INDEX_PATH).toPath());
         // 2.基于Directory对象创建一个IndexWriter对象
-        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer()));
+        IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(ikAnalyzer));
         // 3.读取磁盘上的文件,对应每个文件创建一个文档对象
         File dir = new File(TEST_PATH);
         File[] files = dir.listFiles();
