@@ -11,8 +11,8 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
@@ -24,6 +24,7 @@ import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -101,12 +102,11 @@ public enum EsKit {
      * 给已存在的index设置Mapping
      *
      * @param indexName
-     * @param type
      * @param mappings
      * @return
      * @throws IOException
      */
-    public static boolean putMapping(String indexName, String type, Object mappings) throws IOException {
+    public static boolean putMapping(String indexName, Object mappings) throws IOException {
         try (RestHighLevelClient client = getClient()) {
             PutMappingRequest putMappingRequest = new PutMappingRequest(indexName);
 
@@ -128,7 +128,7 @@ public enum EsKit {
      * @return
      * @throws IOException
      */
-    public static long putMapping(SearchRequest searchRequest) throws IOException {
+    public static long count(SearchRequest searchRequest) throws IOException {
         try (RestHighLevelClient client = getClient()) {
             return client.search(searchRequest, RequestOptions.DEFAULT).getHits().getTotalHits().value;
         }
@@ -145,6 +145,18 @@ public enum EsKit {
         try (RestHighLevelClient client = getClient()) {
             return client.index(indexRequest, RequestOptions.DEFAULT).getId();
         }
+    }
+
+    public static String index(String indexName, Map<String, Object> map) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                builder.field(entry.getKey(), entry.getValue());
+            }
+        }
+        builder.endObject();
+        return index(new IndexRequest().index(indexName).source(builder));
     }
 
     /**
@@ -286,13 +298,13 @@ public enum EsKit {
      * @return
      * @throws IOException
      */
-    public static IndexResponse queryAll() throws IOException {
+    public static SearchResponse queryAll() throws IOException {
         try (RestHighLevelClient client = getClient()) {
-            IndexRequest indexRequest = new IndexRequest();
+            SearchRequest searchRequest = new SearchRequest();
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-            indexRequest.source(searchSourceBuilder);
-            return client.index(indexRequest, RequestOptions.DEFAULT);
+            searchRequest.source(searchSourceBuilder);
+            return client.search(searchRequest, RequestOptions.DEFAULT);
         }
     }
 
@@ -302,14 +314,48 @@ public enum EsKit {
      * @return
      * @throws IOException
      */
-    public static IndexResponse queryAll(String indexName) throws IOException {
+    public static SearchResponse queryAll(String indexName) throws IOException {
         try (RestHighLevelClient client = getClient()) {
-            IndexRequest indexRequest = new IndexRequest(indexName);
+            SearchRequest searchRequest = new SearchRequest(indexName);
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-            indexRequest.source(searchSourceBuilder);
-            return client.index(indexRequest, RequestOptions.DEFAULT);
+            searchRequest.source(searchSourceBuilder);
+            return client.search(searchRequest, RequestOptions.DEFAULT);
         }
+    }
+
+    public static SearchResponse query(String indexName, SearchSourceBuilder builder) throws IOException {
+        try (RestHighLevelClient client = getClient()) {
+            return client.search(new SearchRequest(indexName).source(builder), RequestOptions.DEFAULT);
+        }
+    }
+
+    public static SearchResponse query(String indexName, String field, String value) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery(field, value));
+        return query(indexName, sourceBuilder);
+    }
+
+    public static SearchResponse query(SearchRequest searchRequest) throws IOException {
+        try (RestHighLevelClient client = getClient()) {
+            return client.search(searchRequest, RequestOptions.DEFAULT);
+        }
+    }
+
+    /**
+     * 分词搜索
+     *
+     * @param indexName
+     * @param ayalyzer  ik_smart
+     * @param field
+     * @param value
+     * @return
+     * @throws IOException
+     */
+    public static SearchResponse query(String indexName, String ayalyzer, String field, String value) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchQuery(field, value).analyzer(ayalyzer));
+        return query(indexName, sourceBuilder);
     }
 
     /**
@@ -338,12 +384,6 @@ public enum EsKit {
         sourceBuilder.sort(new FieldSortBuilder(sortField).order(sortOrder));
         sourceBuilder.fetchSource(includes, excludes);
         return sourceBuilder;
-    }
-
-    public static IndexResponse query(IndexRequest indexRequest) throws IOException {
-        try (RestHighLevelClient client = getClient()) {
-            return client.index(indexRequest, RequestOptions.DEFAULT);
-        }
     }
 
 
