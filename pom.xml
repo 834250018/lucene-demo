@@ -30,6 +30,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -60,6 +64,28 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!--
+            docker的Maven插件,使用这个配置需要开启docker远程访问,即-H 0.0.0.0:2375,这样服务器相当于不设防
+            另有一个docker认证远程访问,用到ca的,后续有空可以尝试一下,现在跳过
+            -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <imageName>image1</imageName>
+                    <baseImage>openjdk1.8</baseImage>
+                    <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}</include>
+                        </resource>
+                    </resources>
+                    <dockerHost>http://192.168.1.6</dockerHost>
                 </configuration>
             </plugin>
         </plugins>
