@@ -18,28 +18,36 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
+ * 多线程爬虫
+ *
  * @author ve
  * @date 2020/4/2 23:29
  */
-public class crawler88yscom {
+public class crawler88yscom1 {
 
     public static final String HOST = "https://www.88ys.com";
+
+    public static final ExecutorService executorService = Executors.newFixedThreadPool(6);
+
+
     // 创建连接池管理器
     public static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
 
     // 配置请求信息
     public static final RequestConfig config = RequestConfig.custom()
-            .setConnectTimeout(2000) // 创建连接最长时间
-            .setConnectionRequestTimeout(2000) // 获取连接最长时间
+            .setConnectTimeout(5000) // 创建连接最长时间
+            .setConnectionRequestTimeout(5000) // 获取连接最长时间
             .setSocketTimeout(10 * 1000) // 传输数据最长时间
             .build();
 
     public static void main(String[] args) {
-        // todo 改成多线程窃取算法
+        // 看了一下这个网站应该是限制了连接数.大概在5左右 所以速度是提升不上去了,除非使用代理
         for (int i = 1; i < 100; i++) {
-            // 鉴于这里暂时是单线程,所以增加打印,确定进度
+            // 增加打印,确定进度
             System.out.println("页面进度>>>>>>>>页数" + i);
             Document doc = getDoc(HOST + "/vod-list-id-1-pg-" + i + "-order--by-hits-class-0-year-0-letter--area--lang-.html");
             if (doc == null) {
@@ -47,13 +55,20 @@ public class crawler88yscom {
             }
             Elements elements = doc.select(".p1.m1 a");
             for (int j = 0; j < elements.size(); j++) {
-                // 鉴于这里暂时是单线程,所以增加打印,确定进度
-                System.out.println("页内进度>>>>>>>>" + j);
-                String title = elements.get(j).attr("title");
-                String href = elements.get(j).attr("href");
-                store(title, analysisDetailPage(HOST + href));
+                final int idx = j;
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 增加打印,确定进度
+                        System.out.println("页内进度>>>>>>>>" + idx);
+                        String title = elements.get(idx).attr("title");
+                        String href = elements.get(idx).attr("href");
+                        store(title, analysisDetailPage(HOST + href));
+                    }
+                });
             }
         }
+        executorService.shutdown();
     }
 
     private static List<String> analysisDetailPage(String url) {
@@ -112,6 +127,7 @@ public class crawler88yscom {
             Document doc = Jsoup.parse(EntityUtils.toString(response.getEntity(), "utf8"));
             return doc;
         } catch (Exception e) {
+            System.out.println("------>>>>>>>>超时");
             return null;
         }
     }
@@ -123,7 +139,7 @@ public class crawler88yscom {
      * @param list
      */
     private static void store(String title, List<String> list) {
-        try (FileWriter fileWriter = new FileWriter("test.txt", true)) {
+        try (FileWriter fileWriter = new FileWriter("test1.txt", true)) {
             fileWriter.write(title);
             fileWriter.write("\r\n");
             for (String s : list) {
