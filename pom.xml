@@ -12,6 +12,9 @@
         <module>elasticsearch</module>
         <module>lucene</module>
         <module>crawler</module>
+        <module>webmagic-core</module>
+        <module>webmagic-extension</module>
+        <module>simhash</module>
     </modules>
 
     <parent>
